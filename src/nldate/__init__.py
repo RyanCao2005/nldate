@@ -70,17 +70,12 @@ def clean_date_string(s: str) -> str:
 
 
 def parse_absolute_date(s: str) -> date | None:
-    iso_match = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", s)
-
+    iso_match = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", s)
     if iso_match:
         iso_year, iso_month, iso_day = map(int, iso_match.groups())
 
         return date(iso_year, iso_month, iso_day)
-    slash_match = re.fullmatch(
-        r"(\d{4})/(\d{2})/(\d{2})",
-        s,
-    )
-
+    slash_match = re.fullmatch(r"(\d{4})/(\d{1,2})/(\d{1,2})", s)
     if slash_match:
         slash_year, slash_month, slash_day = map(
             int,
