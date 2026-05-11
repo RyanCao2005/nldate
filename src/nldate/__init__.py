@@ -161,28 +161,14 @@ def parse_offset_expression(
     match = re.fullmatch(r"in (\d+) days?", s)
 
     if match:
-        days = int(match.group(1))
-
-        return today + timedelta(days=days)
-
-    match = re.fullmatch(r"(\d+) days? from now", s)
-
-    if match:
-        days = int(match.group(1))
-
-        return today + timedelta(days=days)
-
-    match = re.fullmatch(r"in (\d+) days?", s)
-
-    if match:
-        days = int(match.group(1))
-        return today + timedelta(days=days)
+        delta_days = int(match.group(1))
+        return today + timedelta(days=delta_days)
 
     match = re.fullmatch(r"(\d+) days? from now", s)
 
     if match:
-        days = int(match.group(1))
-        return today + timedelta(days=days)
+        delta_days = int(match.group(1))
+        return today + timedelta(days=delta_days)
 
     match = re.fullmatch(r"in (\d+) week[s]?", s)
 
@@ -190,33 +176,38 @@ def parse_offset_expression(
         num_weeks = int(match.group(1))
         return today + timedelta(weeks=num_weeks)
 
+    match = re.fullmatch(r"in (\d+) month[s]?", s)
+
+    if match:
+        num_months = int(match.group(1))
+        return add_months(today, num_months)
+
+    match = re.fullmatch(r"in (\d+) year[s]?", s)
+
+    if match:
+        num_years = int(match.group(1))
+        return add_years(today, num_years)
+
     match = re.fullmatch(
         r"(\d+) days? before (.+)",
         s,
     )
 
     if match:
-        num_days, target = match.groups()
-
+        before_days, target = match.groups()
         target_date = parse(target, today)
-
-        return target_date - timedelta(days=int(num_days))
+        return target_date - timedelta(days=int(before_days))
     match = re.fullmatch(
         r"(\d+) year[s]? and (\d+) month[s]? after (.+)",
         s,
     )
 
     if match:
-        num_years, num_months, target = match.groups()
-
+        after_years, after_months, target = match.groups()
         target_date = parse(target, today)
-
-        result = add_years(target_date, int(num_years))
-
-        result = add_months(result, int(num_months))
-
+        result = add_years(target_date, int(after_years))
+        result = add_months(result, int(after_months))
         return result
-
     return None
 
 
