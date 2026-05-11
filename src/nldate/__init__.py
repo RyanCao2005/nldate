@@ -36,9 +36,7 @@ def add_months(d: date, months: int) -> date:
 
     days_in_month = [
         31,
-        29
-        if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
-        else 28,
+        29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28,
         31,
         30,
         31,
@@ -78,7 +76,22 @@ def parse_absolute_date(s: str) -> date | None:
         iso_year, iso_month, iso_day = map(int, iso_match.groups())
 
         return date(iso_year, iso_month, iso_day)
+    slash_match = re.fullmatch(
+        r"(\d{4})/(\d{2})/(\d{2})",
+        s,
+    )
 
+    if slash_match:
+        slash_year, slash_month, slash_day = map(
+            int,
+            slash_match.groups(),
+        )
+
+        return date(
+            slash_year,
+            slash_month,
+            slash_day,
+        )
     month_match = re.fullmatch(
         r"([a-z]+)\s+(\d{1,2}),?\s+(\d{4})",
         s,
