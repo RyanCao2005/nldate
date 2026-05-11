@@ -207,6 +207,8 @@ def parse(
     s: str,
     today: date | None = None,
 ) -> date:
+    s = s.lower().strip()
+    s = s.replace(".", "")
     if today is None:
         today = date.today()
 
