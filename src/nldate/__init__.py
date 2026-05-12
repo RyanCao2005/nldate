@@ -144,14 +144,11 @@ def add_unit(d: date, amount: int, unit: str) -> date:
     raise ValueError(f"Unsupported unit: {unit}")
 
 
-def parse_amount(amount_text: str) -> int:
-    if amount_text in {"a", "an", "one"}:
-        return 1
-    return int(amount_text)
-
-
 def parse_offset_expression(s: str, today: date) -> date | None:
-    amount_pattern = r"(\d+|a|an|one)"
+    amount_pattern = (
+        r"(\d+|a|an|one|two|three|four|five|six|seven|eight|"
+        r"nine|ten|eleven|twelve)"
+    )
     unit_pattern = r"(day|days|week|weeks|month|months|year|years)"
 
     match = re.fullmatch(rf"in {amount_pattern} {unit_pattern}", s)
@@ -221,3 +218,27 @@ def parse(s: str, today: date | None = None) -> date:
         return offset_result
 
     raise ValueError(f"Could not parse date string: {s}")
+
+
+def parse_amount(amount_text: str) -> int:
+    number_words = {
+        "a": 1,
+        "an": 1,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+    }
+
+    if amount_text.isdigit():
+        return int(amount_text)
+
+    return number_words[amount_text]
