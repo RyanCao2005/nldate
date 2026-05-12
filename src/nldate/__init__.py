@@ -144,47 +144,53 @@ def add_unit(d: date, amount: int, unit: str) -> date:
     raise ValueError(f"Unsupported unit: {unit}")
 
 
+def parse_amount(amount_text: str) -> int:
+    if amount_text in {"a", "an", "one"}:
+        return 1
+    return int(amount_text)
+
+
 def parse_offset_expression(s: str, today: date) -> date | None:
-    match = re.fullmatch(r"in (\d+) (day|days|week|weeks|month|months|year|years)", s)
-    if match:
-        amount_text, unit = match.groups()
-        return add_unit(today, int(amount_text), unit)
+    amount_pattern = r"(\d+|a|an|one)"
+    unit_pattern = r"(day|days|week|weeks|month|months|year|years)"
 
-    match = re.fullmatch(r"(\d+) (day|days|week|weeks|month|months|year|years) ago", s)
+    match = re.fullmatch(rf"in {amount_pattern} {unit_pattern}", s)
     if match:
         amount_text, unit = match.groups()
-        return add_unit(today, -int(amount_text), unit)
+        return add_unit(today, parse_amount(amount_text), unit)
+
+    match = re.fullmatch(rf"{amount_pattern} {unit_pattern} ago", s)
+    if match:
+        amount_text, unit = match.groups()
+        return add_unit(today, -parse_amount(amount_text), unit)
+
+    match = re.fullmatch(rf"{amount_pattern} {unit_pattern} from now", s)
+    if match:
+        amount_text, unit = match.groups()
+        return add_unit(today, parse_amount(amount_text), unit)
 
     match = re.fullmatch(
-        r"(\d+) (day|days|week|weeks|month|months|year|years) from now",
-        s,
-    )
-    if match:
-        amount_text, unit = match.groups()
-        return add_unit(today, int(amount_text), unit)
-
-    match = re.fullmatch(
-        r"(\d+) (day|days|week|weeks|month|months|year|years) (before|after) (.+)",
+        rf"{amount_pattern} {unit_pattern} (before|after) (.+)",
         s,
     )
     if match:
         amount_text, unit, direction, target_text = match.groups()
         target_date = parse(target_text, today)
-        amount = int(amount_text)
+        amount = parse_amount(amount_text)
         if direction == "before":
             amount = -amount
         return add_unit(target_date, amount, unit)
 
     match = re.fullmatch(
-        r"(\d+) year[s]? and (\d+) month[s]? (before|after) (.+)",
+        rf"{amount_pattern} year[s]? and {amount_pattern} month[s]? (before|after) (.+)",
         s,
     )
     if match:
         years_text, months_text, direction, target_text = match.groups()
         sign = -1 if direction == "before" else 1
         target_date = parse(target_text, today)
-        result = add_years(target_date, sign * int(years_text))
-        return add_months(result, sign * int(months_text))
+        result = add_years(target_date, sign * parse_amount(years_text))
+        return add_months(result, sign * parse_amount(months_text))
 
     return None
 
