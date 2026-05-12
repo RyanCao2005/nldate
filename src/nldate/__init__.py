@@ -204,6 +204,10 @@ def parse(s: str, today: date | None = None) -> date:
         return today + timedelta(days=1)
     if s == "yesterday":
         return today - timedelta(days=1)
+    if s == "the day after tomorrow":
+        return today + timedelta(days=2)
+    if s == "the day before yesterday":
+        return today - timedelta(days=2)
 
     absolute = parse_absolute_date(s)
     if absolute is not None:
