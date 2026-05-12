@@ -179,7 +179,7 @@ def parse_offset_expression(s: str, today: date) -> date | None:
         return add_unit(target_date, amount, unit)
 
     match = re.fullmatch(
-        rf"{amount_pattern} year[s]? and {amount_pattern} month[s]? (before|after) (.+)",
+        rf"{amount_pattern} year[s]?(?: and|,)? {amount_pattern} month[s]? (before|after) (.+)",
         s,
     )
     if match:
